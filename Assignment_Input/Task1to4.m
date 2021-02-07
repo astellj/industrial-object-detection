@@ -38,6 +38,9 @@ I_binarised = imbinarize(I_enhanced, 'adaptive', 'ForegroundPolarity', 'dark', '
 title('Step-7: Binarised Image')
 
 % Task 2: Edge detection ------------------------
+I_edge = edge(I_enhanced, 'roberts');  % Sobel was found to be the best method
+figure, imshow(I_edge)
+title('Task 2: Edge Detection')
 
 % Task 3: Simple segmentation --------------------
 
