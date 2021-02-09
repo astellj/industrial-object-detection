@@ -1,9 +1,3 @@
-% -----------------------------------------------------
-% CMP3108M-2021: Image Processing - Assessment 01
-% Written by James Astell (17668733)
-% Extension Authorisation Code: FWWKT47HLQMYXK7B
-% -----------------------------------------------------
-
 clear; close all;
 
 % Task 1: Pre-processing -----------------------
@@ -68,18 +62,14 @@ title('Task 2: Edge Detection')
 
 % Task 3: Simple segmentation --------------------
 se = strel('disk', 2);
-I_dilated = imdilate(I_edge, se);
-I_fill = imfill(I_dilated, 'holes');
 
-figure, imshow(I_fill)
-title('Task 3: Simple Segmentation')
+% COMPARING 'imclose' vs 'imdilate'
+I_close = imclose(I_edge, se);
+I_fill_1 = imfill(I_close, 'holes');
+figure, imshow(I_fill_1)
+title('imclose')
 
-
-
-% Task 4: Object Recognition --------------------
-
-
-
-
-
-
+I_dilate = imdilate(I_edge, se);
+I_fill_2 = imfill(I_dilate, 'holes');
+figure, imshow(I_fill_2)
+title('imdilate')
