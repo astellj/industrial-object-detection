@@ -50,7 +50,8 @@ colormap gray;
 
 
 % Step-7: Image Binarisation
-I_binarised = imbinarize(I_enhanced, 'adaptive', 'ForegroundPolarity', 'dark', 'Sensitivity', 0.25);  % 0.25 chosen as not too much noise caused, CHANGE AROUND
+I_binarised = imbinarize(I_enhanced, 'adaptive', 'ForegroundPolarity', ... 
+    'dark', 'Sensitivity', 0.25);  % 0.25 chosen as not too much noise caused, CHANGE AROUND
 
 %figure, imshow(I_binarised)
 %title('Step-7: Binarised Image')
@@ -69,15 +70,56 @@ title('Task 2: Edge Detection')
 % Task 3: Simple segmentation --------------------
 se = strel('disk', 2);
 I_dilated = imdilate(I_edge, se);
-I_fill = imfill(I_dilated, 'holes');
+I_filled = imfill(I_dilated, 'holes');
 
-figure, imshow(I_fill)
+figure, imshow(I_filled)
 title('Task 3: Simple Segmentation')
 
 
 
 % Task 4: Object Recognition --------------------
+% Step-1: Find the different individaul shapes and label them
+% conn = 4 as less likely to have two objects label as the same
+I_labeled = bwlabel(I_filled, 4);
 
+figure, imshow(I_labeled)
+title('Step 1: Distinguish invidual shapes')
+
+% cmap = parula because it looks cool
+% zerocolour = k (black background)
+% order = noshuffle as makes it easier to see difference than random
+figure, imshow(label2rgb(I_labeled, 'parula', 'k', 'noshuffle'))
+title('Step 1b: Display different colours for each shape')
+
+
+% Step-2: Extract the basic properties + boundaries of the labeled shapes
+% basic = 'Area' + 'Centroid' + 'BoundingBox'
+% Take basic for now, see if need other measurements later
+I_props = regionprops(I_labeled, 'basic');
+I_boundaries = bwboundaries(I_labeled);
+
+
+% Step-3: Store all properties to variables
+I_number_shapes = size(I_props, 1);  % Total no. of shapes
+I_areas = [I_props.Area];  % Double array of areas
+I_boundingBox = [I_props.BoundingBox];
+I_centroids = [I_props.Centroid];  % Double array of centroids
+
+% Extract every odd number of values from centroids for X values ...
+% and every even nubmer for the Y values
+X_centroids = I_centroids(1:2:end-1);
+Y_centroids = I_centroids(2:2:end);
+
+
+% Step-4: Label each of the shapes with its corrosponding number
+% For loop to plot the number of each shape at its centroid location
+for k = 1 : I_number_shapes
+    str = {k};  % Display the shape number as a string
+	text(X_centroids(k), Y_centroids(k), str);
+end
+
+
+% Step-5: Contrust table display shape no. and properties
 
 
 
