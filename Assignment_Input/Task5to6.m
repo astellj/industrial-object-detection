@@ -1,7 +1,12 @@
 clear; close all;
+
 % Task 5: Robust method --------------------------
 % Step-1: Load input image
-I = imread('IMG_04.jpg');
+% Choose image here
+Input_filename = 'IMG_07.jpg';
+GT_filename = 'IMG_07_GT.png';
+
+I = imread(Input_filename);
 
 
 % Step-2: Covert image to grayscale
@@ -129,25 +134,36 @@ title('Task 5: Robust Method')
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 % Task 6: Performance evaluation -----------------
-% Step 1: Load ground truth data
-%GT = imread("IMG_01_GT.png");
+% Step-1: Load ground truth data
+GT = imread(GT_filename);
+L_GT = label2rgb(GT, 'prism','k','shuffle');
 
-% To visualise the ground truth image, you can
-% use the following code.
-%L_GT = label2rgb(GT, 'prism','k','shuffle');
-%figure, imshow(L_GT)
+
+% Step-2: Convert ground truth to binary
+GT_gray = im2gray(L_GT);
+GT_binarised = imbinarize(GT_gray);
+
+
+% Step-3: Calcualte dice score
+% I_filled = my final binary segmented image
+% GT_binarised = ground truth 
+Dice_Score = dice(I_filled, GT_binarised);
+
+
+% Step-4: Calcualte precision + recall
+% Threshold = 2.25 to ensure error is noticable
+% Can ignore 'score' as using 'Dice_score'
+[score, Precision, Recall] = bfscore(I_filled, GT_binarised, 2.25);  
+
+
+% Step-5: Display similarity figure with results
+figure, imshowpair(I_recognised, GT_gray)
+title({['Task 6: Performance Evaluation:']
+    ['Dice Score = ' num2str(Dice_Score), ' / Precision = ' ...
+    num2str(Precision), ' / Recall = ' num2str(Recall)]})
+
+
+% Step-5: Contruct performace evaluation table 
+Image_Name = {GT_filename};
+Performance_Evaluation = table(Image_Name, Dice_Score, Precision, Recall)
