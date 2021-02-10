@@ -44,7 +44,8 @@ colormap gray;
 
 
 % Step-7: Image Binarisation
-I_binarised = imbinarize(I_enhanced, 'adaptive', 'ForegroundPolarity', 'dark', 'Sensitivity', 0.25);  % 0.25 chosen as not too much noise caused, CHANGE AROUND
+I_binarised = imbinarize(I_enhanced, 'adaptive', 'ForegroundPolarity', ... 
+    'dark', 'Sensitivity', 0.25);  % 0.25 chosen as not too much noise caused, CHANGE AROUND
 
 %figure, imshow(I_binarised)
 %title('Step-7: Binarised Image')

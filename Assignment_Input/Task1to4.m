@@ -68,8 +68,11 @@ title('Task 2: Edge Detection')
 
 
 % Task 3: Simple segmentation --------------------
-se = strel('disk', 2);
-I_dilated = imdilate(I_edge, se);
+% Grow the object by one pixel
+se1 = strel('disk', 1);
+I_dilated = imdilate(I_edge, se1);
+
+% Fill shape region
 I_filled = imfill(I_dilated, 'holes');
 
 figure, imshow(I_filled)
@@ -120,7 +123,7 @@ end
 
 
 % Step-5: Contrust table to display shape no. and properties
-Shape_No = [1:10]';  % HARD CODED needs changing to loop for amount of ...
+Shape_No = [1:11]';  % HARD CODED needs changing to loop for amount of ...
 % shapes in robust method
 t1 = table(Shape_No);
 t2 = struct2table(I_props);  % Convert 'regionprops' variables to table
