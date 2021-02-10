@@ -119,9 +119,38 @@ for k = 1 : I_number_shapes
 end
 
 
-% Step-5: Contrust table display shape no. and properties
+% Step-5: Contrust table to display shape no. and properties
+Shape_No = [1:10]';  % HARD CODED needs changing to loop for amount of ...
+% shapes in robust method
+t1 = table(Shape_No);
+t2 = struct2table(I_props);  % Convert 'regionprops' variables to table
+properties_table = [t1 t2]   % Combine tables
 
 
+% Step-6: Based on table results choose values to seperate screws from ...
+% washers
+% We can see from the table + labeled image that all the screws have an ...
+% area under 1000
+screw_areas = I_areas < 1000;
+% We can see the washers all have an area above 1500
+washer_areas = I_areas > 1500;
+
+% Store an arrry containing object specifc shape numbers
+screw_find = find(screw_areas);
+washer_find = find(washer_areas);
+
+% Match this matrix of shape numbers to the origial labeled image
+screw_shape = ismember(I_labeled, screw_find);
+washer_shape = ismember(I_labeled, washer_find);
 
 
+% Step-7: Convert the new labeled shapes to different colours and combine
+blue_map = [0 0.4 1];  % Blue colour for screws
+red_map = [1 0 0];  % Red colour for washers
+screws_coloured = label2rgb(screw_shape, blue_map, 'k');
+washers_coloured = label2rgb(washer_shape, red_map, 'k');
 
+% Combine the two coloured images and display
+I_recognised = screws_coloured + washers_coloured;
+figure, imshow(I_recognised)
+title('Task 4: Object Recognition')
