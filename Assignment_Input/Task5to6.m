@@ -3,8 +3,8 @@ clear; close all;
 % Task 5: Robust method --------------------------
 % Step-1: Load input image
 % Choose image here
-Input_filename = 'IMG_07.jpg';
-GT_filename = 'IMG_07_GT.png';
+Input_filename = 'IMG_10.jpg';
+   GT_filename = 'IMG_10_GT.png';
 
 I = imread(Input_filename);
 
@@ -24,8 +24,7 @@ colormap gray;
 
 
 % Step-5: Image Binarisation
-I_binarised = imbinarize(I_enhanced, 'adaptive', 'ForegroundPolarity', ... 
-    'dark', 'Sensitivity', 0.25);  % 0.25 chosen as not too much noise caused, CHANGE AROUND
+I_binarised = imbinarize(I_enhanced, 0.25);  % 0.25 chosen as not too much noise caused, CHANGE AROUND
 
 
 % Step-6: Edge Detection
@@ -34,17 +33,21 @@ I_edge = edge(I_enhanced, 'canny', 0.25);
 
 
 % Step-7: Simple Segmentation
-% Grow the object by one pixel
+% Define the structuring element
 se1 = strel('disk', 1);
 I_dilated = imdilate(I_edge, se1);
 
 % Fill shape region
-I_filled = imfill(I_dilated, 'holes');
+I_segmented = imfill(I_dilated, 'holes');
+
+
+%REMOVE
+figure, imshow(I_segmented)
 
 
 % Step-8: Find the different individaul shapes and label them
 % conn = 4 as less likely to have two objects label as the same
-I_labeled = bwlabel(I_filled, 4);
+I_labeled = bwlabel(I_segmented, 4);
 
 figure, imshow(I_labeled)
 title('Step 1: Distinguish invidual shapes')
@@ -57,16 +60,15 @@ title('Step 1b: Display different colours for each shape')
 
 
 % Step-9: Extract the basic properties + boundaries of the labeled shapes
-% basic = 'Area' + 'Centroid' + 'BoundingBox'
-% Take basic for now, see if need other measurements later
-I_props = regionprops(I_labeled, 'basic');
+% Changed to all as area no longer works for all images
+I_props = regionprops(I_labeled, 'all');
 I_boundaries = bwboundaries(I_labeled);
 
 
 % Step-10: Store all properties to variables
 I_number_shapes = size(I_props, 1);  % Total no. of shapes
 I_areas = [I_props.Area];  % Double array of areas
-I_boundingBox = [I_props.BoundingBox];
+I_per = [I_props.Perimeter];
 I_centroids = [I_props.Centroid];  % Double array of centroids
 
 % Extract every odd number of values from centroids for X values ...
@@ -100,11 +102,11 @@ properties_table = [t1 t2]   % Combine tables
 % washers
 % We can see from the table + labeled image that all the screws have an ...
 % area under 1000
-small_screw_areas = I_areas < 1000;
+small_screw_areas = I_per < 120;
 % We can see the washers all have an area between 1000 and 2400
-washer_areas = I_areas > 1000 & I_areas < 2500;
+washer_areas = I_per > 120 & I_per < 250;
 % We can see that all big screws have an area above 2600
-big_screw_areas = I_areas > 2600;
+big_screw_areas = I_per > 250;
 
 % Store an arrry containing object specifc shape numbers
 small_screw_find = find(small_screw_areas);
@@ -134,6 +136,14 @@ title('Task 5: Robust Method')
 
 
 
+
+
+
+% REMOVE BEFORE FINAL
+% Step-15: Save to folder
+%print('output/IMG_01_OR', '-dpng'); % Object Rec.
+
+
 % Task 6: Performance evaluation -----------------
 % Step-1: Load ground truth data
 GT = imread(GT_filename);
@@ -148,13 +158,13 @@ GT_binarised = imbinarize(GT_gray);
 % Step-3: Calcualte dice score
 % I_filled = my final binary segmented image
 % GT_binarised = ground truth 
-Dice_Score = dice(I_filled, GT_binarised);
+Dice_Score = dice(I_segmented, GT_binarised);
 
 
 % Step-4: Calcualte precision + recall
 % Threshold = 2.25 to ensure error is noticable
 % Can ignore 'score' as using 'Dice_score'
-[score, Precision, Recall] = bfscore(I_filled, GT_binarised, 2.25);  
+[score, Precision, Recall] = bfscore(I_segmented, GT_binarised, 2.25);  
 
 
 % Step-5: Display similarity figure with results

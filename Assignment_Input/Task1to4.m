@@ -21,7 +21,7 @@ I_gray = rgb2gray(I);
 %title('Step-2: Grayscale Image')
 
 
-% Step-3: Rescale image by linear interpolation
+% Step-3: Rescale image by bilinear interpolation
 I_scaled = imresize(I_gray, 0.5, 'bilinear');
 
 %figure, imagesc(I_scaled)
