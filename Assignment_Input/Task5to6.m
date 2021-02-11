@@ -161,5 +161,5 @@ title({['Task 6: Performance Evaluation:']
 
 
 % Step-5: Contruct performace evaluation table 
-Image_Name = {GT_filename};
+Image_Name = {Input_filename};
 Performance_Evaluation = table(Image_Name, Dice_Score, Precision, Recall)
