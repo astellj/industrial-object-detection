@@ -3,8 +3,8 @@ clear; close all;
 % Task 5: Robust method --------------------------
 % Step-1: Load input image
 % Choose image here
-Input_filename = 'IMG_10.jpg';
-   GT_filename = 'IMG_10_GT.png';
+Input_filename = 'IMG_05.jpg';
+   GT_filename = 'IMG_05_GT.png';
 
 I = imread(Input_filename);
 
@@ -19,30 +19,24 @@ colormap gray;  % Returns the image to greyscale
 
 
 % Step-4: Enhance image before binarisation
-I_enhanced = imadjust(I_scaled);  % Two different methods find out which is best
+I_enhanced = imadjust(I_scaled);
 colormap gray;
 
 
 % Step-5: Image Binarisation
-I_binarised = imbinarize(I_enhanced, 0.25);  % 0.25 chosen as not too much noise caused, CHANGE AROUND
+I_binarised = imbinarize(I_enhanced, 0.25);
 
 
 % Step-6: Edge Detection
-% Canny at 0.25 threshold was found to be the best
-I_edge = edge(I_enhanced, 'canny', 0.25); 
+I_edge = edge(I_enhanced, 'canny', [0.05, 0.20], 0.8); 
 
 
 % Step-7: Simple Segmentation
 % Define the structuring element
-se1 = strel('disk', 1);
-I_dilated = imdilate(I_edge, se1);
-
-% Fill shape region
-I_segmented = imfill(I_dilated, 'holes');
-
-
-%REMOVE
-figure, imshow(I_segmented)
+se2 = strel('disk', 2');
+I_closed = imclose(I_edge, se2);
+I_filled = imfill(I_closed, 'holes');
+I_segmented = imopen(I_filled, se2);
 
 
 % Step-8: Find the different individaul shapes and label them
@@ -62,13 +56,12 @@ title('Step 1b: Display different colours for each shape')
 % Step-9: Extract the basic properties + boundaries of the labeled shapes
 % Changed to all as area no longer works for all images
 I_props = regionprops(I_labeled, 'all');
-I_boundaries = bwboundaries(I_labeled);
 
 
 % Step-10: Store all properties to variables
 I_number_shapes = size(I_props, 1);  % Total no. of shapes
 I_areas = [I_props.Area];  % Double array of areas
-I_per = [I_props.Perimeter];
+I_per = [I_props.Perimeter]; % Double array of perimeters
 I_centroids = [I_props.Centroid];  % Double array of centroids
 
 % Extract every odd number of values from centroids for X values ...
@@ -101,11 +94,11 @@ properties_table = [t1 t2]   % Combine tables
 % Step-13: Based on table results choose values to seperate screws from ...
 % washers
 % We can see from the table + labeled image that all the screws have an ...
-% area under 1000
-small_screw_areas = I_per < 120;
-% We can see the washers all have an area between 1000 and 2400
-washer_areas = I_per > 120 & I_per < 250;
-% We can see that all big screws have an area above 2600
+% perimeter under 122
+small_screw_areas = I_per < 122;
+% We can see the washers all have an perimeter between 122 and 250
+washer_areas = I_per > 122 & I_per < 250;
+% We can see that all big screws have an perimeter above 250
 big_screw_areas = I_per > 250;
 
 % Store an arrry containing object specifc shape numbers
@@ -130,18 +123,11 @@ washers_coloured = label2rgb(washer_shape, red_map, 'k');
 big_screws_coloured = label2rgb(big_screw_shape, yellow_map, 'k');
 
 % Combine the two coloured images and display
-I_recognised = small_screws_coloured + washers_coloured + big_screws_coloured;
+I_recognised = small_screws_coloured + washers_coloured ...
+    + big_screws_coloured;
 figure, imshow(I_recognised)
 title('Task 5: Robust Method')
 
-
-
-
-
-
-% REMOVE BEFORE FINAL
-% Step-15: Save to folder
-%print('output/IMG_01_OR', '-dpng'); % Object Rec.
 
 
 % Task 6: Performance evaluation -----------------
